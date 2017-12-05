@@ -38,7 +38,8 @@ module.exports = exports = function parse (schema, existingDefinitions) {
 	}
 
 	if (schema._valids && schema._valids.has(null)) {
-		swagger.type = [ swagger.type, 'null' ];
+		// swagger.type = [ swagger.type, 'null' ];
+		swagger.nullable = true;
 	}
 
 	if (schema._description) {
@@ -313,6 +314,28 @@ var parseAsType = {
 
 		if (get(schema, '_flags.allowUnknown') === false) {
 			swagger.additionalProperties = false;
+		}
+
+		return swagger;
+	},
+	any: (schema) => {
+		// console.log(schema);
+		// console.log(schema._valids, schema._valids.values().length);
+
+		var swagger = {};
+		if (schema._valids && schema._valids.values().length) {
+			swagger.type = 'string';
+			swagger.enum = schema._valids.values().filter((v) => v !== null);
+			if (schema._valids.has(null)) {
+				// swagger.type = [ swagger.type, 'null' ];
+				// swagger.nullable = true;
+			}
+		}
+		else {
+			// console.log(schema);
+			swagger = {
+				// any type
+			};
 		}
 
 		return swagger;
